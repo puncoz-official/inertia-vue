@@ -28,7 +28,7 @@ export default {
       default: false,
     },
   },
-  render(h, { props, data, children }) {
+  render(h, { props, data, children, listeners }) {
     return h('a', {
       ...data,
       attrs: {
@@ -37,7 +37,7 @@ export default {
       },
       on: {
         ...(data.on || {}),
-        click: event => {
+        click: async event => {
           if (data.on && data.on.click) {
             data.on.click(event)
           }
@@ -45,13 +45,17 @@ export default {
           if (shouldIntercept(event)) {
             event.preventDefault()
 
-            Inertia.visit(props.href, {
+            await Inertia.visit(props.href, {
               data: props.data,
               method: props.method,
               replace: props.replace,
               preserveScroll: props.preserveScroll,
               preserveState: props.preserveState,
             })
+
+            if (listeners.visited) {
+              listeners.visited()
+            }
           }
         },
       },
